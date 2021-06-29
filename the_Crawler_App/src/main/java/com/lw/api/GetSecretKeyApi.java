@@ -1,6 +1,9 @@
 package com.lw.api;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -10,7 +13,6 @@ import java.io.FileReader;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import java.util.Map;
  * @Date 2021/6/29/029 15:16
  **/
 @RestController
+@RequestMapping("/test")
 public class GetSecretKeyApi {
 
     public static final String KEY_ALGORITHM = "RSA";
@@ -31,7 +34,7 @@ public class GetSecretKeyApi {
     /**
      * @Description //TODO 获取公钥私钥
      **/
-    @PostMapping
+    @GetMapping(value = "SecretKey")
     private Map<String,String> SecretKey(){
         Map<String, Object> keyMap;
         HashMap<String, String> map = new HashMap<>();
@@ -97,47 +100,5 @@ public class GetSecretKeyApi {
         keyMap.put(PUBLIC_KEY, publicKey);
         keyMap.put(PRIVATE_KEY, privateKey);
         return keyMap;
-    }
-
-    public static void main(String[] args) {
-        BASE64Decoder base64decoder = new BASE64Decoder();
-        try {
-            //读取pem证书
-            BufferedReader br = new BufferedReader(new FileReader("xxx.pem"));
-            String s = br.readLine();
-            StringBuffer publickey = new StringBuffer();
-            while (s.charAt(0) != '-') {
-                publickey.append(s + "\r");
-                s = br.readLine();
-            }
-            byte[] keybyte = base64decoder.decodeBuffer(publickey.toString());
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keybyte);
-            PublicKey publicKey = kf.generatePublic(keySpec);
-            BASE64Encoder bse=new BASE64Encoder();
-            System.out.println("pk:"+bse.encode(publicKey.getEncoded()));
-
-            //被签的原文
-            String toSign="MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAtnj5ZE7R020rFkVERfNnQw6rGcyO\n" +
-                    "dUKvIAWO1q3gzJU4ZJVivep7bo768DDLSWlO4g/birIAs7spW8jS/MhQ2wIDAQABAkBk7resh3jD\n" +
-                    "BWDO+dORCdk1m3iDVcX7EL7D7K8dCqMNJg8tcYZInq8NfFGvflVk+D935Hif+G88xed00aXEVr5x\n" +
-                    "AiEA/QkMaNijGJJoAaEAX6crJoDxKf26HQLIwe2fOZ0Gy6kCIQC4nEfKOEqaBOHr8UmKUpDys3nU\n" +
-                    "mHqPlTMlSm+Mxpgq4wIgQ3tUSenspTL2dejANsJYaa5dors+FVqWu9Fpc24DT/ECIAXmCG0vq0KM\n" +
-                    "kWNmjED9LmBy15uxW4km7UFtxW6sEcSdAiAjD9VQBCti6alzP9TegoGnsCc4zE0XTGgRO+BIFZao\n" +
-                    "dw==";
-            //生成的签名
-            String sign="MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALZ4+WRO0dNtKxZFREXzZ0MOqxnMjnVCryAFjtat4MyV\n" +
-                    "OGSVYr3qe26O+vAwy0lpTuIP24qyALO7KVvI0vzIUNsCAwEAAQ==";
-
-            Signature signature = Signature.getInstance("SHA1withRSA");
-            signature.initVerify(publicKey);
-            signature.update(toSign.getBytes());
-            boolean verify = signature.verify(base64decoder
-                    .decodeBuffer(
-                            sign));
-            System.out.println(verify);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
