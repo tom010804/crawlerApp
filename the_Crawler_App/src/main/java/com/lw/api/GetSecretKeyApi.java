@@ -42,10 +42,8 @@ public class GetSecretKeyApi {
             keyMap = initKey();
             String publicKey = getPublicKey(keyMap);
             map.put(PUBLIC_KEY,publicKey);
-            System.out.println(publicKey);
             String privateKey = getPrivateKey(keyMap);
             map.put(PRIVATE_KEY,privateKey);
-            System.out.println(privateKey);
         } catch (Exception e) {
             e.printStackTrace();
         }
